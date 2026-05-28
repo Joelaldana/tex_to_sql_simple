@@ -1,7 +1,10 @@
 from sqlalchemy import create_engine, Column, Integer, String, text
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-# Configuración base de datos
+# =============================
+# CONFIGURACION BASE DE DATOS
+# =============================
+
 Base = declarative_base()
 
 engine = create_engine("sqlite:///personas.db", echo=True)
@@ -9,8 +12,10 @@ engine = create_engine("sqlite:///personas.db", echo=True)
 Session = sessionmaker(bind=engine)
 session = Session()
 
+# =============================
+# CLASE PERSONA
+# =============================
 
-# Clase Persona
 class Persona(Base):
     __tablename__ = "personas"
 
@@ -18,25 +23,44 @@ class Persona(Base):
     nombre = Column(String)
     edad = Column(Integer)
 
+# ================================
+# CLASE LOG (RELLENO)
+# ================================
 
-# Crear tablas
+class Log(Base):
+    __tablename__ = "logs"
+
+    id = Column(Integer, primary_key=True)
+    accion = Column(String)    
+
+
+# ================================
+# CREAR TABLAS
+# ================================
+
 Base.metadata.create_all(engine)
 
 
-# Función principal
+# ================================
+# FUNCION PRINCIPAL
+# ================================
+
 def interpretar_texto(texto):
     """
     Interpreta instrucciones en texto simple.
 
     Ejemplos:
-    - agrega persona Juan 25
+    - agrega persona joel 25
     - muestra todas las personas
-    - borra persona Juan
+    - borra persona joel
     """
 
     palabras = texto.lower().split()
 
-    # AGREGAR PERSONA
+    # ================================
+    #   AGREGAR PERSONA 
+    # ================================
+
     if palabras[0] == "agrega" and palabras[1] == "persona":
 
         nombre = palabras[2]
@@ -48,8 +72,11 @@ def interpretar_texto(texto):
         session.commit()
 
         return f"Persona '{nombre}' agregada con edad {edad}"
+    
+# ================================
+# MOSTRAR PERSONAS
+# ================================
 
-    # MOSTRAR PERSONAS
     elif texto.lower() == "muestra todas las personas":
 
         personas = session.query(Persona).all()
@@ -60,9 +87,13 @@ def interpretar_texto(texto):
             )
 
         else:
-            return "No hay personas registradas."
+            return "No Hay Personas Registradas."
 
-    # BORRAR PERSONA
+
+# =============================
+# BORRAR PERSONA
+# =============================
+
     elif texto.lower().startswith("borra persona"):
 
         nombre = palabras[2]
@@ -74,17 +105,23 @@ def interpretar_texto(texto):
             session.delete(persona)
             session.commit()
 
-            return f"Persona '{nombre}' eliminada."
+            return f"'{nombre}' fue eliminado."
 
         else:
-            return f"No se encontró la persona '{nombre}'."
+            return f"No se encontro '{nombre}'."
+        
+# =============================
+# ERROR
+# =============================
 
-    # ERROR
     else:
-        return "Instrucción no reconocida."
+        return "No se Reconoce como una Instruccion"
+    
+# =============================
+# PROGRAMA PRINCIPAL
+# =============================
 
 
-# Programa principal
 if __name__ == "__main__":
 
     print("=== Sistema Text-to-SQL Básico ===")
